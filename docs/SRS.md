@@ -1,0 +1,529 @@
+# Software Requirements Specification (SRS)
+## ExpirySense AI - Smart Product Expiry & Inventory Management System
+
+**Version:** 1.0  
+**Date:** July 18, 2026  
+**Status:** Active Development  
+**Author:** Development Team
+
+---
+
+## Table of Contents
+1. [Introduction](#introduction)
+2. [Project Overview](#project-overview)
+3. [System Requirements](#system-requirements)
+4. [Functional Requirements](#functional-requirements)
+5. [Non-Functional Requirements](#non-functional-requirements)
+6. [Use Cases](#use-cases)
+7. [Data Requirements](#data-requirements)
+8. [System Architecture](#system-architecture)
+9. [API Specifications](#api-specifications)
+
+---
+
+## 1. Introduction
+
+### 1.1 Purpose
+ExpirySense AI is an enterprise-grade inventory management platform designed to help organizations track products in real time, prevent losses due to expiry, automate notifications, and predict expiry risks using AI/ML algorithms.
+
+### 1.2 Scope
+The system covers:
+- Multi-organization, multi-branch inventory management
+- Real-time product tracking with batch/lot management
+- Automated expiry monitoring and notifications
+- Advanced reporting and analytics
+- AI-driven demand forecasting and recommendations
+- Role-based access control
+
+### 1.3 Audience
+- **Inventory Managers** - Manage stock levels and transfers
+- **Store Managers** - Oversee branch operations
+- **Administrators** - Configure system and manage users
+- **Analytics Users** - Generate reports and forecasts
+- **System Administrators** - Deploy and maintain infrastructure
+
+---
+
+## 2. Project Overview
+
+### 2.1 Vision
+Build a scalable SaaS platform that transforms inventory management through real-time tracking, intelligent automation, and predictive analytics, enabling organizations to minimize losses, optimize stock levels, and make data-driven decisions.
+
+### 2.2 Key Benefits
+- **Cost Reduction**: Prevent product wastage due to expiry
+- **Efficiency**: Automate repetitive inventory tasks
+- **Insights**: AI-powered demand forecasting and recommendations
+- **Compliance**: Audit trails and regulatory compliance
+- **Scalability**: Support multiple organizations and branches
+- **Accessibility**: Multi-channel notifications (Email, SMS, WhatsApp)
+
+---
+
+## 3. System Requirements
+
+### 3.1 Hardware Requirements
+- **Server**: 4GB RAM, 2 CPU cores (minimum for production)
+- **Storage**: 50GB for database + file storage (scalable)
+- **Network**: Stable internet connection (1 Mbps minimum)
+
+### 3.2 Software Requirements
+- **Backend Runtime**: Python 3.9+
+- **Database**: MySQL 8.0+
+- **Container**: Docker & Docker Compose
+- **Frontend Runtime**: Node.js 16+ (for development)
+- **Web Server**: Nginx 1.20+
+
+### 3.3 Browser Requirements
+- Chrome 90+
+- Firefox 88+
+- Safari 14+
+- Edge 90+
+
+---
+
+## 4. Functional Requirements
+
+### 4.1 Authentication & Authorization
+
+#### F1.1 User Registration
+- **Description**: New users can create accounts with email and password
+- **Actors**: Public users, system
+- **Precondition**: User is not registered
+- **Flow**:
+  1. User enters email, password, full name
+  2. System validates email uniqueness
+  3. System sends verification email
+  4. User verifies email
+  5. Account created with ACTIVE status
+- **Postcondition**: User account created, user can log in
+
+#### F1.2 User Login
+- **Description**: Registered users authenticate with email/password
+- **Actors**: Registered users
+- **Output**: JWT token valid for 24 hours
+
+#### F1.3 Password Reset
+- **Description**: Users can reset forgotten passwords
+- **Flow**: Email verification → token generation → password update
+
+#### F1.4 Role-Based Access Control (RBAC)
+- **Roles**: Admin, Manager, Supervisor, Staff, Viewer
+- **Permissions**: Define per role (create/read/update/delete operations)
+- **Organization Scoping**: Users only see data for their organization
+
+### 4.2 Organization & Branch Management
+
+#### F2.1 Organization Setup
+- Create, update, delete organizations
+- Configure organization settings (name, address, contact, logo)
+- Manage organization members
+
+#### F2.2 Branch Management
+- Create multiple branches per organization
+- Store branch details (address, manager, phone)
+- Define branch-specific inventory
+
+#### F2.3 User Management
+- Add/remove users to organization
+- Assign roles to users
+- Manage user permissions
+- View user activity logs
+
+### 4.3 Product Management
+
+#### F3.1 Product Creation
+- **Fields**: Name, SKU, category, supplier, unit, weight, description
+- **Barcode/QR Code**: Generate or import barcode data
+- **Batch Tracking**: Track by batch/lot number
+- **Validation**: Unique SKU per organization
+
+#### F3.2 Product Categories
+- Create hierarchical categories
+- Add/edit/delete categories
+- Organize products by category
+
+#### F3.3 Suppliers
+- Maintain supplier database (name, contact, email, phone)
+- Track supplier performance
+- Link products to suppliers
+
+#### F3.4 Product Updates
+- Edit product details
+- Archive/soft-delete products
+- Audit trail for changes
+
+### 4.4 Inventory Management
+
+#### F4.1 Stock In
+- Receive products from suppliers
+- Record batch number, manufacturing date, expiry date, quantity
+- Update inventory levels
+- Generate receiving documents
+
+#### F4.2 Stock Out
+- Process outbound stock (sales, transfers)
+- Record quantity and reason (sale, transfer, damage, expired)
+- Update inventory levels
+
+#### F4.3 Stock Transfers
+- Move stock between branches
+- Track transfer status (pending, approved, received)
+- Record transfer history
+
+#### F4.4 Inventory Adjustments
+- Reconcile physical inventory with system records
+- Record damaged/returned stock
+- Audit trail for adjustments
+
+#### F4.5 Inventory Reports
+- Current stock levels by product/branch
+- Stock aging analysis
+- Low stock alerts
+- Overstock analysis
+
+### 4.5 Expiry Management
+
+#### F5.1 Expiry Monitoring
+- Automated daily expiry checks
+- Categorize products by expiry status:
+  - Expired (expiry date < today)
+  - Critical (expiry date < 7 days)
+  - Warning (expiry date < 14 days)
+  - Safe (expiry date >= 14 days)
+
+#### F5.2 Expiry Notifications
+- Automatic notifications triggered for critical/expired products
+- Configurable notification frequency (daily, weekly)
+- Multiple channels: Email, SMS, WhatsApp
+- Notification history and read status
+
+#### F5.3 Expiry Automation
+- Automatically flag expired products
+- Generate expiry reports
+- Archive/remove expired stock records
+
+### 4.6 AI & Analytics
+
+#### F6.1 Demand Forecasting
+- Predict product demand using historical sales data
+- Time-series analysis (ARIMA, Prophet)
+- Seasonal adjustments
+- Confidence intervals
+
+#### F6.2 Smart Recommendations
+- Suggest reorder quantities based on forecast
+- Identify slow-moving inventory
+- Recommend stock levels by branch
+
+#### F6.3 Expiry Risk Prediction
+- ML model to predict products at risk of expiring
+- Factor in: consumption rate, expiry date, stock level
+- Rank by risk level
+
+#### F6.4 Analytics Dashboard
+- Key metrics: Total inventory value, turnover rate, expiry rate
+- Trends and comparisons (month-over-month, year-over-year)
+- Charts and visualizations
+
+### 4.7 Reporting
+
+#### F7.1 Report Generation
+- **Formats**: PDF, Excel, CSV
+- **Types**: 
+  - Inventory summary
+  - Stock movements
+  - Expiry analysis
+  - Sales analysis
+  - Purchase analysis
+  - Audit logs
+- **Scheduling**: One-time or recurring reports
+
+#### F7.2 Report Customization
+- Select date range, products, branches
+- Add custom metrics
+- Export and share
+
+### 4.8 Audit & Compliance
+
+#### F8.1 Audit Logs
+- Track all system activities: login, create, update, delete
+- Record: timestamp, user, action, table, old value, new value
+- Query and filter audit logs
+- Export audit reports
+
+#### F8.2 Data Backup
+- Automated daily backups
+- Point-in-time recovery
+- Backup retention policy (90 days minimum)
+
+---
+
+## 5. Non-Functional Requirements
+
+### 5.1 Performance
+- **Response Time**: API responses < 500ms (95th percentile)
+- **Throughput**: Support 1000+ concurrent users
+- **Database Queries**: Execute < 200ms (95th percentile)
+
+### 5.2 Scalability
+- Horizontal scaling for API servers
+- Database query optimization and indexing
+- Caching layer (Redis) for frequently accessed data
+- Support for 1M+ products across 1000+ organizations
+
+### 5.3 Reliability
+- **Uptime**: 99.5% (monthly)
+- **Recovery Time Objective (RTO)**: < 1 hour
+- **Recovery Point Objective (RPO)**: < 15 minutes
+- Health monitoring and alerting
+
+### 5.4 Security
+- **Authentication**: JWT tokens with expiration
+- **Authorization**: Role-based access control
+- **Data Encryption**: HTTPS for transport, AES-256 for storage
+- **Input Validation**: Prevent SQL injection, XSS attacks
+- **Rate Limiting**: 100 requests per minute per user
+- **CORS**: Restrict cross-origin requests
+- **Audit Trail**: Log all data modifications
+
+### 5.5 Usability
+- Intuitive UI/UX for non-technical users
+- Mobile-responsive design
+- Accessibility (WCAG 2.1 Level AA)
+- Multi-language support (future)
+- Contextual help and documentation
+
+### 5.6 Maintainability
+- Modular architecture (frontend, backend, database)
+- Comprehensive API documentation
+- Code comments and docstrings
+- Automated testing (unit, integration, E2E)
+- CI/CD pipeline with GitHub Actions
+
+---
+
+## 6. Use Cases
+
+### UC1: Inventory Manager Receives Stock
+1. Manager receives shipment from supplier
+2. Scans barcode or enters product SKU
+3. Enters batch number, manufacturing date, expiry date, quantity
+4. System updates inventory level
+5. System records receiving in stock movement log
+
+### UC2: Automated Expiry Notification
+1. Scheduler runs daily at 6 AM
+2. System queries all products expiring within 14 days
+3. For each branch with expiring products:
+   - Generate notification
+   - Send email to branch manager
+   - Record notification in notification_history table
+4. User receives notification and acknowledges
+
+### UC3: Demand Forecasting & Reorder Suggestion
+1. Analytics module processes historical sales data (last 12 months)
+2. Model predicts demand for next 30 days
+3. System calculates recommended reorder quantity
+4. Dashboard displays suggestion to procurement manager
+5. Manager reviews and places order
+
+### UC4: Generate Expiry Report
+1. User selects report type: "Expiry Analysis"
+2. Selects date range and branches
+3. System queries inventory data
+4. Calculates expiry metrics (total expired, critical, warning)
+5. Generates PDF/Excel with charts
+6. User downloads or schedules recurring report
+
+---
+
+## 7. Data Requirements
+
+### 7.1 Data Entities
+See **Database Schema** section for comprehensive ERD and table definitions.
+
+### 7.2 Data Volume Estimates (Year 1)
+- Organizations: 50
+- Users: 500
+- Products: 50,000
+- Stock Movements: 500,000+
+- Notifications: 100,000+
+- Audit Logs: 1,000,000+
+
+### 7.3 Data Retention
+- Transactional data: 7 years (regulatory compliance)
+- Audit logs: 3 years minimum
+- Notification history: 2 years
+- Backups: 90 days
+
+---
+
+## 8. System Architecture
+
+### 8.1 High-Level Architecture
+```
+┌─────────────────────────────────────────────────────────┐
+│                      Frontend (React)                    │
+│          Components, Pages, State Management             │
+└──────────────────────┬──────────────────────────────────┘
+                       │ HTTPS
+┌──────────────────────▼──────────────────────────────────┐
+│                    API Gateway (Nginx)                   │
+│           Request Routing, Rate Limiting, CORS           │
+└──────────────────────┬──────────────────────────────────┘
+                       │ REST API
+┌──────────────────────▼──────────────────────────────────┐
+│                  Backend (Flask)                         │
+│    ├─ Authentication (JWT)                              │
+│    ├─ Product Management                                │
+│    ├─ Inventory Management                              │
+│    ├─ Expiry Engine                                     │
+│    ├─ Notifications                                     │
+│    ├─ Reporting                                         │
+│    └─ AI/Analytics                                      │
+└──────────────────────┬──────────────────────────────────┘
+        ┌──────────────┼──────────────┐
+        │              │              │
+┌───────▼────────┐  ┌──▼──────────┐  │
+│  MySQL DB      │  │ Redis Cache │  │
+│  Persistence   │  │ Session,    │  │
+│                │  │ Caching     │  │
+└────────────────┘  └─────────────┘  │
+                    ┌──────────────────┴─────────┐
+                    │  Scheduler (APScheduler)   │
+                    │  ├─ Daily expiry checks    │
+                    │  ├─ Recurring reports      │
+                    │  └─ Cleanup jobs           │
+                    └────────────────────────────┘
+```
+
+### 8.2 Deployment Architecture
+- **Frontend**: Served via Nginx static hosting
+- **Backend API**: Flask app running in Docker container
+- **Database**: MySQL in Docker or managed service
+- **Message Queue**: Redis for caching and sessions
+- **Notifications**: Email (SendGrid/SES), SMS/WhatsApp (Twilio)
+- **File Storage**: AWS S3 or Cloudinary for reports/exports
+
+---
+
+## 9. API Specifications
+
+### 9.1 REST API Endpoints (Sample)
+
+#### Authentication
+```
+POST   /api/v1/auth/register              - Register new user
+POST   /api/v1/auth/login                 - Login user
+POST   /api/v1/auth/logout                - Logout user
+POST   /api/v1/auth/refresh-token         - Refresh JWT token
+POST   /api/v1/auth/forgot-password       - Request password reset
+POST   /api/v1/auth/reset-password        - Reset password with token
+```
+
+#### Products
+```
+GET    /api/v1/products                   - List all products
+POST   /api/v1/products                   - Create product
+GET    /api/v1/products/:id               - Get product details
+PUT    /api/v1/products/:id               - Update product
+DELETE /api/v1/products/:id               - Delete product
+GET    /api/v1/products/:id/batches       - Get product batches
+POST   /api/v1/categories                 - Manage categories
+```
+
+#### Inventory
+```
+GET    /api/v1/inventory                  - List current inventory
+POST   /api/v1/inventory/stock-in         - Receive stock
+POST   /api/v1/inventory/stock-out        - Ship stock
+POST   /api/v1/inventory/transfer         - Transfer between branches
+GET    /api/v1/inventory/movements        - Stock movement history
+GET    /api/v1/inventory/expiry-status    - Get expiry summary
+```
+
+#### Notifications
+```
+GET    /api/v1/notifications              - Get user notifications
+PUT    /api/v1/notifications/:id/read     - Mark as read
+DELETE /api/v1/notifications/:id          - Delete notification
+GET    /api/v1/notifications/history      - Notification history
+```
+
+#### Analytics
+```
+GET    /api/v1/analytics/dashboard        - Dashboard metrics
+GET    /api/v1/analytics/forecast         - Demand forecast
+GET    /api/v1/analytics/recommendations  - Reorder suggestions
+GET    /api/v1/analytics/expiry-risk      - Expiry risk model
+```
+
+#### Reports
+```
+GET    /api/v1/reports                    - List available reports
+POST   /api/v1/reports                    - Generate report
+GET    /api/v1/reports/:id/download       - Download report
+POST   /api/v1/reports/schedule           - Schedule recurring report
+```
+
+#### Administration
+```
+GET    /api/v1/admin/users                - Manage users
+GET    /api/v1/admin/audit-logs           - View audit trail
+GET    /api/v1/admin/settings             - System settings
+```
+
+### 9.2 API Response Format
+```json
+{
+  "status": "success|error",
+  "data": { /* response payload */ },
+  "message": "Human-readable message",
+  "error": { /* error details if status=error */ },
+  "timestamp": "2026-07-18T10:30:00Z"
+}
+```
+
+### 9.3 Authentication Header
+```
+Authorization: Bearer <jwt_token>
+```
+
+---
+
+## 10. Constraints & Assumptions
+
+### 10.1 Constraints
+- Single organization/branch per login session (no multi-org switching)
+- Notifications limited to 1000/day per organization (throttling)
+- Report generation timeout after 5 minutes
+- Maximum file upload size: 50MB
+
+### 10.2 Assumptions
+- Users have basic computer literacy
+- Internet connectivity is stable (3G minimum)
+- Browser JavaScript is enabled
+- Database connectivity is available 24/7
+- Email service is working for notifications
+
+---
+
+## 11. Success Criteria
+
+- ✅ All functional requirements implemented and tested
+- ✅ Performance metrics met (response time, throughput)
+- ✅ 95%+ test coverage for critical modules
+- ✅ Zero critical security vulnerabilities (penetration testing)
+- ✅ Full audit trail for all transactions
+- ✅ Documentation complete (API, user guide, admin guide)
+- ✅ Deployment to production successful
+- ✅ User acceptance testing passed
+
+---
+
+**Document Version History**
+
+| Version | Date | Author | Changes |
+|---------|------|--------|---------|
+| 1.0 | 2026-07-18 | Dev Team | Initial SRS document |
+
